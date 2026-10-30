@@ -82,6 +82,22 @@ details[open] .plus{transform:rotate(45deg)}
 .js .reveal{opacity:0;transform:translateY(32px);transition:opacity 700ms cubic-bezier(0.22,1,0.36,1),transform 700ms cubic-bezier(0.22,1,0.36,1)}
 .js .reveal.in{opacity:1;transform:none}
 @media (prefers-reduced-motion: reduce){.js .reveal{transform:none}.bar{transition:none}}
+@keyframes introIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+@keyframes navIn{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:none}}
+@keyframes imgIn{from{opacity:0;transform:scale(1.06)}to{opacity:1;transform:none}}
+.js header nav{animation:navIn 800ms cubic-bezier(0.22,1,0.36,1) both}
+.js .intro{animation:introIn 800ms cubic-bezier(0.22,1,0.36,1) both}
+.js .heroimg{overflow:hidden;border-radius:24px}
+.js .heroimg img{animation:imgIn 1200ms cubic-bezier(0.22,1,0.36,1) both}
+.js .stg{opacity:0;transform:translateY(32px);transition:opacity 700ms cubic-bezier(0.22,1,0.36,1),transform 700ms cubic-bezier(0.22,1,0.36,1)}
+.js .in .stg{opacity:1;transform:none}
+@media (prefers-reduced-motion: reduce){
+@keyframes introIn{from{opacity:0}to{opacity:1}}
+@keyframes navIn{from{opacity:0}to{opacity:1}}
+@keyframes imgIn{from{opacity:0}to{opacity:1}}
+.js .stg{transform:none}
+}
+
 </style>
 </head>
 <body>
@@ -461,7 +477,17 @@ var btn=document.getElementById('menuBtn'),m=document.getElementById('mobileMenu
 function set(o){m.hidden=!o;btn.classList.toggle('open',o);btn.setAttribute('aria-expanded',o);btn.setAttribute('aria-label',o?'Закрыть меню':'Открыть меню');document.body.style.overflow=o?'hidden':''}
 btn.addEventListener('click',function(){set(m.hidden)});
 m.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){set(false)})});
-var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:0.12});
+
+var hl=[].slice.call(document.querySelectorAll('#top .hero > div:first-child > *'));
+hl.forEach(function(el,i){el.classList.add('intro');el.style.animationDelay=(120+i*90)+'ms'});
+var hi=document.querySelector('#top .hero > div:last-child');hi.classList.add('heroimg');
+var hc=hi.querySelector('div');if(hc){hc.classList.add('intro');hc.style.animationDelay='700ms'}
+document.querySelectorAll('.reveal').forEach(function(sec){
+  var items=sec.querySelectorAll('.g2 > *, .g3 > *, .ev, details, .split > *');
+  [].forEach.call(items,function(el,i){var d=Math.min(i*80,400);el.classList.add('stg');el.style.transitionDelay=d+'ms';
+    el.dataset.d=d;});
+});
+var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){var t=e.target;t.classList.add('in');io.unobserve(t);t.querySelectorAll('.stg').forEach(function(el){setTimeout(function(){el.classList.remove('stg');el.style.transitionDelay=''},(+el.dataset.d)+800)})}})},{threshold:0.12});
 document.querySelectorAll('.reveal').forEach(function(s){io.observe(s)});
 var tag=document.getElementById('tagline'),ws=[].slice.call(document.querySelectorAll('#tagline .w')),raf=null;
 function measure(){raf=null;var r=tag.getBoundingClientRect(),vh=window.innerHeight,p=(vh*0.85-r.top)/(vh*0.55),n=Math.max(0,Math.min(ws.length,Math.floor(p*ws.length)));ws.forEach(function(w,i){w.classList.toggle('on',i<n)})}
